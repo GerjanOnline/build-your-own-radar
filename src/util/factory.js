@@ -100,102 +100,15 @@ const GoogleSheet = function (sheetReference, sheetName) {
     return self;
 };
 
-const CSVDocument = function (url) {
-    var self = {};
-
-    self.build = function () {
-        d3.csv(url, createBlips);
-    }
-
-    var createBlips = function (data) {
-        try {
-            var columnNames = data['columns'];
-            delete data['columns'];
-            var contentValidator = new ContentValidator(columnNames);
-            contentValidator.verifyContent();
-            contentValidator.verifyHeaders();
-            var blips = _.map(data, new InputSanitizer().sanitize);
-            plotRadar(FileName(url), blips);
-        } catch (exception) {
-            plotErrorMessage(exception);
-        }
-    }
-
-    self.init = function () {
-        plotLoading();
-        return self;
-    };
-
-    return self;
-};
-
-const QueryParams = function (queryString) {
-    var decode = function (s) {
-        return decodeURIComponent(s.replace(/\+/g, " "));
-    };
-
-    var search = /([^&=]+)=?([^&]*)/g;
-
-    var queryParams = {};
-    var match;
-    while (match = search.exec(queryString))
-        queryParams[decode(match[1])] = decode(match[2]);
-
-    return queryParams
-};
-
-const DomainName = function (url) {
-    var search = /.+:\/\/([^\/]+)/;
-    var match = search.exec(decodeURIComponent(url.replace(/\+/g, " ")));
-    return match == null ? null : match[1];
-}
-
-
-const FileName = function (url) {
-    var search = /([^\/]+)$/;
-    var match = search.exec(decodeURIComponent(url.replace(/\+/g, " ")));
-    if (match != null) {
-        var str = match[1];
-        return str;
-    }
-    return url;
-}
-
-
 const GoogleSheetInput = function () {
     var self = {};
     
     self.build = function () {
-        var domainName = DomainName(window.location.search.substring(1));
-        var queryParams = QueryParams(window.location.search.substring(1));
+        var sheetId = 'https://docs.google.com/spreadsheets/d/1nbj-x5bxu8sSIM2bsymGcjFf5-pfXK2Sl8DKXQoBE0E/edit';
 
-        if (domainName && queryParams.sheetId.endsWith('csv')) {
-            var sheet = CSVDocument(queryParams.sheetId);
-            sheet.init().build();
-        }
-        else if (domainName && domainName.endsWith('google.com') && queryParams.sheetId) {
-            var sheet = GoogleSheet(queryParams.sheetId, queryParams.sheetName);
-            console.log(queryParams.sheetName)
+        var sheet = GoogleSheet(sheetId, '');
 
-            sheet.init().build();
-        } else {
-            var content = d3.select('body')
-                .append('div')
-                .attr('class', 'input-sheet');
-            set_document_title();
-
-            plotLogo(content);
-
-            var bannerText = '<div><h1>Build your own radar</h1><p>Once you\'ve <a href ="https://www.thoughtworks.com/radar/byor">created your Radar</a>, you can use this service' +
-                ' to generate an <br />interactive version of your Technology Radar. Not sure how? <a href ="https://www.thoughtworks.com/radar/how-to-byor">Read this first.</a></p></div>';
-
-            plotBanner(content, bannerText);
-
-            plotForm(content);
-
-            plotFooter(content);
-
-        }
+        sheet.init().build();
     };
 
     return self;
@@ -228,19 +141,6 @@ function plotLogo(content) {
 }
 
 function plotFooter(content) {
-    content
-        .append('div')
-        .attr('id', 'footer')
-        .append('div')
-        .attr('class', 'footer-content')
-        .append('p')
-        .html('Powered by <a href="https://www.thoughtworks.com"> ThoughtWorks</a>. '
-        + 'By using this service you agree to <a href="https://www.thoughtworks.com/radar/tos">ThoughtWorks\' terms of use</a>. '
-        + 'You also agree to our <a href="https://www.thoughtworks.com/privacy-policy">privacy policy</a>, which describes how we will gather, use and protect any personal data contained in your public Google Sheet. '
-        + 'This software is <a href="https://github.com/thoughtworks/build-your-own-radar">open source</a> and available for download and self-hosting.');
-
-
-
 }
 
 function plotBanner(content, text) {
