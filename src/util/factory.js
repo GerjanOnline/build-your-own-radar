@@ -18,6 +18,7 @@ const SheetNotFoundError = require('../exceptions/sheetNotFoundError');
 const ContentValidator = require('./contentValidator');
 const Sheet = require('./sheet');
 const ExceptionMessages = require('./exceptionMessages');
+const config = require('../config');
 
 const plotRadar = function (title, blips) {
     document.title = title;
@@ -104,7 +105,7 @@ const GoogleSheetInput = function () {
     var self = {};
     
     self.build = function () {
-        var sheetId = 'https://docs.google.com/spreadsheets/d/1nbj-x5bxu8sSIM2bsymGcjFf5-pfXK2Sl8DKXQoBE0E/edit';
+        var sheetId = config.sheetId;
 
         var sheet = GoogleSheet(sheetId, '');
 
@@ -129,18 +130,14 @@ function plotLoading(content) {
 
     plotLogo(content);
 
-    var bannerText = '<h1>Building your radar...</h1><p>Your Technology Radar will be available in just a few seconds</p>';
+    var bannerText = '<h1>Building the Bloemert Tech Radar...</h1><p>It will be available in just a few seconds</p>';
     plotBanner(content, bannerText);
-    plotFooter(content);
 }
 
 function plotLogo(content) {
     content.append('div')
         .attr('class', 'input-sheet__logo')
-        .html('<a href="https://www.thoughtworks.com"><img src="/images/tw-logo.png" / ></a>');
-}
-
-function plotFooter(content) {
+        .html('<a href="https://tech.bloemert.com/"><img src="/images/bloemert-logo.png" / ></a>');
 }
 
 function plotBanner(content, text) {
@@ -148,30 +145,6 @@ function plotBanner(content, text) {
         .attr('class', 'input-sheet__banner')
         .html(text);
 
-}
-
-function plotForm(content) {
-    content.append('div')
-        .attr('class', 'input-sheet__form')
-        .append('p')
-        .html('<strong>Enter the URL of your <a href="https://www.thoughtworks.com/radar/how-to-byor" target="_blank">published</a> Google Sheet or CSV file below…</strong>');
-
-    var form = content.select('.input-sheet__form').append('form')
-        .attr('method', 'get');
-
-    form.append('input')
-        .attr('type', 'text')
-        .attr('name', 'sheetId')
-        .attr('placeholder', "e.g. https://docs.google.com/spreadsheets/d/<\sheetid\> or hosted CSV file")
-        .attr('required','');
-
-    form.append('button')
-        .attr('type', 'submit')
-        .append('a')
-        .attr('class', 'button')
-        .text('Build my radar');
-
-    form.append('p').html("<a href='https://www.thoughtworks.com/radar/how-to-byor'>Need help?</a>");
 }
 
 function plotErrorMessage(exception) {
